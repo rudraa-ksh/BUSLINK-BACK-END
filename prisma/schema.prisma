@@ -1,0 +1,215 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────
+
+enum Role {
+  passenger
+  driver
+  admin
+}
+
+enum AccountStatus {
+  pending    // registered but OTP not verified
+  active
+  suspended
+  deleted
+}
+
+enum BusStatus {
+  active
+  idle
+  maintenance
+}
+
+enum TripStatus {
+  scheduled
+  in_progress
+  completed
+  cancelled
+}
+
+enum RecentType {
+  location
+  route
+}
+
+// ─── User ────────────────────────────────────────────────
+
+model User {
+  id             String        @id @default(uuid())
+  name           String
+  email          String        @unique
+  hashedPassword String?
+  role           Role          @default(passenger)
+  accountStatus  AccountStatus @default(pending)
+  avatarUrl      String?
+  googleId       String?       @unique
+  otp            String?
+  otpExpiresAt   DateTime?
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  refreshTokens RefreshToken[]
+  recents       RecentEntry[]
+  assignedBus   Bus?           @relation("DriverBus")
+
+  @@index([email])
+  @@index([googleId])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+}
+
+model RecentEntry {
+  id          String     @id @default(uuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        RecentType
+  label       String
+  subLabel    String?
+  lat         Float?
+  lng         Float?
+  originId    String?
+  destId      String?
+  createdAt   DateTime   @default(now())
+
+  @@index([userId, type])
+}
+
+// ─── Bus ─────────────────────────────────────────────────
+
+model Bus {
+  id           String    @id @default(uuid())
+  plateNumber  String    @unique
+  routeId      String?
+  route        Route?    @relation(fields: [routeId], references: [id])
+  driverId     String?   @unique
+  driver       User?     @relation("DriverBus", fields: [driverId], references: [id])
+  status       BusStatus @default(idle)
+  capacity     Int       @default(40)
+  currentLat   Float?
+  currentLng   Float?
+  heading      Float?
+  speed        Float?
+  locationUpdatedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  trips     Trip[]
+  schedules Schedule[]
+
+  @@index([routeId])
+  @@index([currentLat, currentLng])
+}
+
+// ─── Route ───────────────────────────────────────────────
+
+model Route {
+  id          String      @id @default(uuid())
+  name        String
+  city        String      @default("Raipur")
+  active      Boolean     @default(true)
+  distanceKm  Float?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  buses      Bus[]
+  routeStops RouteStop[]
+}
+
+// ─── Stop ────────────────────────────────────────────────
+
+model Stop {
+  id        String      @id @default(uuid())
+  name      String
+  city      String      @default("Raipur")
+  lat       Float
+  lng       Float
+  amenities String[]    @default([])
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  routeStops RouteStop[]
+  schedules  Schedule[]
+
+  @@index([lat, lng])
+  @@index([name])
+}
+
+// ─── RouteStop (join table) ──────────────────────────────
+
+model RouteStop {
+  id                 String @id @default(uuid())
+  routeId            String
+  route              Route  @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  stopId             String
+  stop               Stop   @relation(fields: [stopId], references: [id], onDelete: Cascade)
+  sequence           Int
+  distanceFromOrigin Float  @default(0)
+
+  @@unique([routeId, stopId])
+  @@unique([routeId, sequence])
+  @@index([routeId])
+  @@index([stopId])
+}
+
+// ─── Trip ────────────────────────────────────────────────
+
+model Trip {
+  id            String     @id @default(uuid())
+  tripNumber    Int
+  busId         String
+  bus           Bus        @relation(fields: [busId], references: [id])
+  originStop    String
+  destStop      String
+  distanceKm    Float
+  departureTime DateTime
+  status        TripStatus @default(scheduled)
+  startedAt     DateTime?
+  completedAt   DateTime?
+  date          DateTime   @default(now()) @db.Date
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([busId, date])
+}
+
+// ─── Schedule (per-stop arrival data) ────────────────────
+
+model Schedule {
+  id               String   @id @default(uuid())
+  busId            String
+  bus              Bus      @relation(fields: [busId], references: [id])
+  stopId           String
+  stop             Stop     @relation(fields: [stopId], references: [id])
+  scheduledArrival DateTime
+  estimatedArrival DateTime?
+  actualArrival    DateTime?
+  delayMinutes     Int      @default(0)
+  passengerCount   Int      @default(0)
+  isCurrent        Boolean  @default(false)
+  date             DateTime @default(now()) @db.Date
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([busId, date])
+  @@index([stopId])
+}
