@@ -1,9 +1,9 @@
-const bcrypt = require('bcryptjs');
-const prisma = require('../config/db');
-const AppError = require('../utils/AppError');
+import bcrypt from 'bcryptjs';
+import prisma from '../config/db.js';
+import AppError from '../utils/AppError.js';
 
 // ─── GET /users/me ──────────────────────────────────────
-exports.getProfile = async (req, res, next) => {
+export const getProfile = async (req, res, next) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.userId },
@@ -28,13 +28,12 @@ exports.getProfile = async (req, res, next) => {
 };
 
 // ─── PUT /users/me ──────────────────────────────────────
-exports.updateProfile = async (req, res, next) => {
+export const updateProfile = async (req, res, next) => {
   try {
     const { name, email } = req.body;
     const data = {};
     if (name !== undefined) data.name = name;
     if (email !== undefined) {
-      // Check uniqueness
       const existing = await prisma.user.findUnique({ where: { email } });
       if (existing && existing.id !== req.user.userId) {
         throw new AppError('Email is already in use', 409);
@@ -55,7 +54,7 @@ exports.updateProfile = async (req, res, next) => {
 };
 
 // ─── PUT /users/me/password ─────────────────────────────
-exports.changePassword = async (req, res, next) => {
+export const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -86,15 +85,13 @@ exports.changePassword = async (req, res, next) => {
 };
 
 // ─── DELETE /users/me ───────────────────────────────────
-exports.deleteAccount = async (req, res, next) => {
+export const deleteAccount = async (req, res, next) => {
   try {
-    // Soft-delete: mark account as deleted
     await prisma.user.update({
       where: { id: req.user.userId },
       data: { accountStatus: 'deleted' },
     });
 
-    // Revoke all refresh tokens
     await prisma.refreshToken.deleteMany({
       where: { userId: req.user.userId },
     });
@@ -106,7 +103,7 @@ exports.deleteAccount = async (req, res, next) => {
 };
 
 // ─── GET /users/me/recents ──────────────────────────────
-exports.getRecents = async (req, res, next) => {
+export const getRecents = async (req, res, next) => {
   try {
     const { type, limit } = req.query;
     const where = { userId: req.user.userId };
@@ -135,7 +132,7 @@ exports.getRecents = async (req, res, next) => {
 };
 
 // ─── POST /users/me/recents ─────────────────────────────
-exports.createRecent = async (req, res, next) => {
+export const createRecent = async (req, res, next) => {
   try {
     const { type, label, subLabel, lat, lng, originId, destId } = req.body;
 
@@ -160,7 +157,7 @@ exports.createRecent = async (req, res, next) => {
 };
 
 // ─── DELETE /users/me/recents/:recentId ─────────────────
-exports.deleteRecent = async (req, res, next) => {
+export const deleteRecent = async (req, res, next) => {
   try {
     const { recentId } = req.params;
 

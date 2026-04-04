@@ -35,6 +35,7 @@ enum TripStatus {
   cancelled
 }
 
+
 enum RecentType {
   location
   route
@@ -105,6 +106,11 @@ model Bus {
   driver       User?     @relation("DriverBus", fields: [driverId], references: [id])
   status       BusStatus @default(idle)
   capacity     Int       @default(40)
+  type         String    @default("Non-AC")
+  odometer     Float     @default(0)
+  insuranceExpiry DateTime?
+  pucExpiry       DateTime?
+  dateOfJoining   DateTime  @default(now())
   currentLat   Float?
   currentLng   Float?
   heading      Float?
@@ -126,7 +132,6 @@ model Route {
   id          String      @id @default(uuid())
   name        String
   city        String      @default("Raipur")
-  active      Boolean     @default(true)
   distanceKm  Float?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -164,6 +169,7 @@ model RouteStop {
   stop               Stop   @relation(fields: [stopId], references: [id], onDelete: Cascade)
   sequence           Int
   distanceFromOrigin Float  @default(0)
+  arrivalTime        String?  // Default timetable time in "HH:MM" format
 
   @@unique([routeId, stopId])
   @@unique([routeId, sequence])
@@ -204,7 +210,6 @@ model Schedule {
   estimatedArrival DateTime?
   actualArrival    DateTime?
   delayMinutes     Int      @default(0)
-  passengerCount   Int      @default(0)
   isCurrent        Boolean  @default(false)
   date             DateTime @default(now()) @db.Date
   createdAt        DateTime @default(now())

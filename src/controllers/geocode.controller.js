@@ -1,7 +1,7 @@
-const AppError = require('../utils/AppError');
+import AppError from '../utils/AppError.js';
 
 // ─── GET /geocode/search ────────────────────────────────
-exports.geocodeSearch = async (req, res, next) => {
+export const geocodeSearch = async (req, res, next) => {
   try {
     const { q, city } = req.query;
     if (!q) {
@@ -9,7 +9,6 @@ exports.geocodeSearch = async (req, res, next) => {
     }
 
     // Placeholder: In production, forward to Google Maps Geocoding API
-    // For now, return mock data for Raipur
     const mockResults = [
       {
         placeId: 'mock-place-1',
@@ -27,7 +26,7 @@ exports.geocodeSearch = async (req, res, next) => {
 };
 
 // ─── GET /geocode/reverse ───────────────────────────────
-exports.reverseGeocode = async (req, res, next) => {
+export const reverseGeocode = async (req, res, next) => {
   try {
     const { lat, lng } = req.query;
     if (!lat || !lng) {
@@ -47,7 +46,7 @@ exports.reverseGeocode = async (req, res, next) => {
 };
 
 // ─── GET /navigation/walking ────────────────────────────
-exports.walkingNavigation = async (req, res, next) => {
+export const walkingNavigation = async (req, res, next) => {
   try {
     const { originLat, originLng, stopId } = req.query;
     if (!originLat || !originLng || !stopId) {
@@ -58,7 +57,6 @@ exports.walkingNavigation = async (req, res, next) => {
     }
 
     // Placeholder: In production, forward to Google Maps Directions API
-    // Calculate rough straight-line distance for mock response
     const distanceMetres = Math.round(300 + Math.random() * 700);
     const durationMinutes = Math.round(distanceMetres / 80); // ~80 m/min
 

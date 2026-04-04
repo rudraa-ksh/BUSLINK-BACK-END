@@ -1,6 +1,6 @@
-const { body } = require('express-validator');
+import { body } from 'express-validator';
 
-const registerValidation = [
+export const registerValidation = [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').isEmail().normalizeEmail().withMessage('A valid email is required'),
   body('password')
@@ -11,12 +11,12 @@ const registerValidation = [
     .withMessage('Passwords do not match'),
 ];
 
-const loginValidation = [
+export const loginValidation = [
   body('email').isEmail().normalizeEmail().withMessage('A valid email is required'),
   body('password').notEmpty().withMessage('Password is required'),
 ];
 
-const verifyOtpValidation = [
+export const verifyOtpValidation = [
   body('email').isEmail().normalizeEmail().withMessage('A valid email is required'),
   body('otp')
     .isLength({ min: 4, max: 4 })
@@ -24,15 +24,15 @@ const verifyOtpValidation = [
     .withMessage('OTP must be a 4-digit number'),
 ];
 
-const resendOtpValidation = [
+export const resendOtpValidation = [
   body('email').isEmail().normalizeEmail().withMessage('A valid email is required'),
 ];
 
-const forgotPasswordValidation = [
+export const forgotPasswordValidation = [
   body('email').isEmail().normalizeEmail().withMessage('A valid email is required'),
 ];
 
-const resetPasswordValidation = [
+export const resetPasswordValidation = [
   body('email').isEmail().normalizeEmail().withMessage('A valid email is required'),
   body('resetToken').notEmpty().withMessage('Reset token is required'),
   body('newPassword')
@@ -43,21 +43,10 @@ const resetPasswordValidation = [
     .withMessage('Passwords do not match'),
 ];
 
-const refreshTokenValidation = [
+export const refreshTokenValidation = [
   body('refreshToken').notEmpty().withMessage('Refresh token is required'),
 ];
 
-const googleAuthValidation = [
+export const googleAuthValidation = [
   body('idToken').notEmpty().withMessage('Google ID token is required'),
 ];
-
-module.exports = {
-  registerValidation,
-  loginValidation,
-  verifyOtpValidation,
-  resendOtpValidation,
-  forgotPasswordValidation,
-  resetPasswordValidation,
-  refreshTokenValidation,
-  googleAuthValidation,
-};

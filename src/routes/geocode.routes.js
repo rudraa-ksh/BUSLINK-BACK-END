@@ -1,6 +1,6 @@
-const { Router } = require('express');
-const ctrl = require('../controllers/geocode.controller');
-const { authenticate } = require('../middleware/auth');
+import { Router } from 'express';
+import * as ctrl from '../controllers/geocode.controller.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -10,4 +10,4 @@ router.get('/geocode/search', ctrl.geocodeSearch);
 router.get('/geocode/reverse', ctrl.reverseGeocode);
 router.get('/navigation/walking', ctrl.walkingNavigation);
 
-module.exports = router;
+export default router;

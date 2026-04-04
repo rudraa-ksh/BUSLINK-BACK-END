@@ -1,6 +1,6 @@
-const { Router } = require('express');
-const ctrl = require('../controllers/bus.controller');
-const { authenticate } = require('../middleware/auth');
+import { Router } from 'express';
+import * as ctrl from '../controllers/bus.controller.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -13,4 +13,4 @@ router.get('/', ctrl.listBuses);
 router.get('/:busId', ctrl.getBusDetails);
 router.get('/:busId/location', ctrl.getBusLocation);
 
-module.exports = router;
+export default router;

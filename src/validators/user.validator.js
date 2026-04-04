@@ -1,11 +1,11 @@
-const { body } = require('express-validator');
+import { body } from 'express-validator';
 
-const updateProfileValidation = [
+export const updateProfileValidation = [
   body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
   body('email').optional().isEmail().normalizeEmail().withMessage('A valid email is required'),
 ];
 
-const changePasswordValidation = [
+export const changePasswordValidation = [
   body('currentPassword').notEmpty().withMessage('Current password is required'),
   body('newPassword')
     .isLength({ min: 8 })
@@ -15,7 +15,7 @@ const changePasswordValidation = [
     .withMessage('Passwords do not match'),
 ];
 
-const createRecentValidation = [
+export const createRecentValidation = [
   body('type').isIn(['location', 'route']).withMessage('Type must be "location" or "route"'),
   body('label').trim().notEmpty().withMessage('Label is required'),
   body('subLabel').optional().trim(),
@@ -24,9 +24,3 @@ const createRecentValidation = [
   body('originId').optional().trim(),
   body('destId').optional().trim(),
 ];
-
-module.exports = {
-  updateProfileValidation,
-  changePasswordValidation,
-  createRecentValidation,
-};

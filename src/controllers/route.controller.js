@@ -1,8 +1,8 @@
-const prisma = require('../config/db');
-const AppError = require('../utils/AppError');
+import prisma from '../config/db.js';
+import AppError from '../utils/AppError.js';
 
 // ─── GET /routes ────────────────────────────────────────
-exports.listRoutes = async (req, res, next) => {
+export const listRoutes = async (req, res, next) => {
   try {
     const { city, active } = req.query;
     const where = {};
@@ -41,7 +41,7 @@ exports.listRoutes = async (req, res, next) => {
 };
 
 // ─── GET /routes/:routeId ───────────────────────────────
-exports.getRouteDetails = async (req, res, next) => {
+export const getRouteDetails = async (req, res, next) => {
   try {
     const route = await prisma.route.findUnique({
       where: { id: req.params.routeId },

@@ -1,12 +1,12 @@
-const { Router } = require('express');
-const ctrl = require('../controllers/user.controller');
-const { authenticate } = require('../middleware/auth');
-const validate = require('../middleware/validate');
-const {
+import { Router } from 'express';
+import * as ctrl from '../controllers/user.controller.js';
+import { authenticate } from '../middleware/auth.js';
+import validate from '../middleware/validate.js';
+import {
   updateProfileValidation,
   changePasswordValidation,
   createRecentValidation,
-} = require('../validators/user.validator');
+} from '../validators/user.validator.js';
 
 const router = Router();
 
@@ -21,4 +21,4 @@ router.get('/me/recents', ctrl.getRecents);
 router.post('/me/recents', createRecentValidation, validate, ctrl.createRecent);
 router.delete('/me/recents/:recentId', ctrl.deleteRecent);
 
-module.exports = router;
+export default router;

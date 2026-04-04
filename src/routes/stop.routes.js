@@ -1,6 +1,6 @@
-const { Router } = require('express');
-const ctrl = require('../controllers/stop.controller');
-const { authenticate } = require('../middleware/auth');
+import { Router } from 'express';
+import * as ctrl from '../controllers/stop.controller.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -12,4 +12,4 @@ router.get('/search', ctrl.searchStops);
 router.get('/', ctrl.listStops);
 router.get('/:stopId', ctrl.getStopDetails);
 
-module.exports = router;
+export default router;

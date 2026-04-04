@@ -1,16 +1,16 @@
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 /**
  * Generate a random 4-digit OTP string.
  */
-function generateOTP() {
+export function generateOTP() {
   return String(Math.floor(1000 + Math.random() * 9000));
 }
 
 /**
  * Send OTP to user's email via SMTP.
  */
-async function sendOTPEmail(email, otp) {
+export async function sendOTPEmail(email, otp) {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT) || 587,
@@ -36,5 +36,3 @@ async function sendOTPEmail(email, otp) {
     `,
   });
 }
-
-module.exports = { generateOTP, sendOTPEmail };

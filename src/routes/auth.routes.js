@@ -1,9 +1,9 @@
-const { Router } = require('express');
-const ctrl = require('../controllers/auth.controller');
-const validate = require('../middleware/validate');
-const { authenticate } = require('../middleware/auth');
-const { otpLimiter, loginLimiter } = require('../middleware/rateLimiter');
-const {
+import { Router } from 'express';
+import * as ctrl from '../controllers/auth.controller.js';
+import validate from '../middleware/validate.js';
+import { authenticate } from '../middleware/auth.js';
+import { otpLimiter, loginLimiter } from '../middleware/rateLimiter.js';
+import {
   registerValidation,
   loginValidation,
   verifyOtpValidation,
@@ -12,7 +12,7 @@ const {
   resetPasswordValidation,
   refreshTokenValidation,
   googleAuthValidation,
-} = require('../validators/auth.validator');
+} from '../validators/auth.validator.js';
 
 const router = Router();
 
@@ -26,4 +26,4 @@ router.post('/reset-password', resetPasswordValidation, validate, ctrl.resetPass
 router.post('/refresh-token', refreshTokenValidation, validate, ctrl.refreshTokenHandler);
 router.post('/logout', authenticate, ctrl.logout);
 
-module.exports = router;
+export default router;

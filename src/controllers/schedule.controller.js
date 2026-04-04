@@ -1,8 +1,8 @@
-const prisma = require('../config/db');
-const AppError = require('../utils/AppError');
+import prisma from '../config/db.js';
+import AppError from '../utils/AppError.js';
 
 // ─── GET /buses/:busId/schedule ─────────────────────────
-exports.getSchedule = async (req, res, next) => {
+export const getSchedule = async (req, res, next) => {
   try {
     const { busId } = req.params;
 
@@ -49,7 +49,6 @@ exports.getSchedule = async (req, res, next) => {
         scheduledArrival: s.scheduledArrival,
         estimatedArrival: s.estimatedArrival,
         delayMinutes: s.delayMinutes,
-        passengerCount: s.passengerCount,
         isCurrent: s.isCurrent,
       })),
     });
@@ -59,7 +58,7 @@ exports.getSchedule = async (req, res, next) => {
 };
 
 // ─── GET /buses/:busId/schedule/next-stop ───────────────
-exports.getNextStop = async (req, res, next) => {
+export const getNextStop = async (req, res, next) => {
   try {
     const { busId } = req.params;
 

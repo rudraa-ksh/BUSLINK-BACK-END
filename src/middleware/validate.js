@@ -1,10 +1,10 @@
-const { validationResult } = require('express-validator');
+import { validationResult } from 'express-validator';
 
 /**
  * Middleware: run express-validator checks and return 422 on failure.
  * Usage: router.post('/route', [...validationChain], validate, controller)
  */
-function validate(req, res, next) {
+export default function validate(req, res, next) {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -21,5 +21,3 @@ function validate(req, res, next) {
 
   next();
 }
-
-module.exports = validate;

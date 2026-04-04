@@ -1,9 +1,9 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 /**
  * Generate a short-lived access token (60 min default).
  */
-function generateAccessToken(user) {
+export function generateAccessToken(user) {
   return jwt.sign(
     { userId: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
@@ -14,7 +14,7 @@ function generateAccessToken(user) {
 /**
  * Generate a long-lived refresh token (30 days default).
  */
-function generateRefreshToken(user) {
+export function generateRefreshToken(user) {
   return jwt.sign(
     { userId: user.id },
     process.env.JWT_REFRESH_SECRET,
@@ -25,8 +25,6 @@ function generateRefreshToken(user) {
 /**
  * Verify and decode a JWT.
  */
-function verifyToken(token, secret) {
+export function verifyToken(token, secret) {
   return jwt.verify(token, secret);
 }
-
-module.exports = { generateAccessToken, generateRefreshToken, verifyToken };

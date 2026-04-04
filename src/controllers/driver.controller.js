@@ -1,8 +1,8 @@
-const prisma = require('../config/db');
-const AppError = require('../utils/AppError');
+import prisma from '../config/db.js';
+import AppError from '../utils/AppError.js';
 
 // ─── GET /driver/assignment ─────────────────────────────
-exports.getAssignment = async (req, res, next) => {
+export const getAssignment = async (req, res, next) => {
   try {
     const bus = await prisma.bus.findUnique({
       where: { driverId: req.user.userId },
@@ -28,7 +28,7 @@ exports.getAssignment = async (req, res, next) => {
 };
 
 // ─── GET /driver/trips ──────────────────────────────────
-exports.getTrips = async (req, res, next) => {
+export const getTrips = async (req, res, next) => {
   try {
     const bus = await prisma.bus.findUnique({
       where: { driverId: req.user.userId },
@@ -70,7 +70,7 @@ exports.getTrips = async (req, res, next) => {
 };
 
 // ─── GET /driver/trips/:tripId ──────────────────────────
-exports.getTripDetails = async (req, res, next) => {
+export const getTripDetails = async (req, res, next) => {
   try {
     const trip = await prisma.trip.findUnique({
       where: { id: req.params.tripId },
@@ -100,7 +100,6 @@ exports.getTripDetails = async (req, res, next) => {
         scheduledArrival: s.scheduledArrival,
         estimatedArrival: s.estimatedArrival,
         delayMinutes: s.delayMinutes,
-        passengerCount: s.passengerCount,
         isCurrent: s.isCurrent,
       })),
     });
@@ -110,7 +109,7 @@ exports.getTripDetails = async (req, res, next) => {
 };
 
 // ─── POST /driver/trips/:tripId/start ───────────────────
-exports.startTrip = async (req, res, next) => {
+export const startTrip = async (req, res, next) => {
   try {
     const trip = await prisma.trip.findUnique({
       where: { id: req.params.tripId },
@@ -149,7 +148,7 @@ exports.startTrip = async (req, res, next) => {
 };
 
 // ─── POST /driver/trips/:tripId/complete ────────────────
-exports.completeTrip = async (req, res, next) => {
+export const completeTrip = async (req, res, next) => {
   try {
     const trip = await prisma.trip.findUnique({
       where: { id: req.params.tripId },
@@ -207,7 +206,7 @@ exports.completeTrip = async (req, res, next) => {
 };
 
 // ─── PUT /driver/location ───────────────────────────────
-exports.updateLocation = async (req, res, next) => {
+export const updateLocation = async (req, res, next) => {
   try {
     const { lat, lng, heading, speed, timestamp } = req.body;
 
@@ -241,7 +240,7 @@ exports.updateLocation = async (req, res, next) => {
 };
 
 // ─── GET /driver/schedule ───────────────────────────────
-exports.getDriverSchedule = async (req, res, next) => {
+export const getDriverSchedule = async (req, res, next) => {
   try {
     const bus = await prisma.bus.findUnique({
       where: { driverId: req.user.userId },
@@ -286,7 +285,6 @@ exports.getDriverSchedule = async (req, res, next) => {
         scheduledArrival: s.scheduledArrival,
         estimatedArrival: s.estimatedArrival,
         delayMinutes: s.delayMinutes,
-        passengerCount: s.passengerCount,
         isCurrent: s.isCurrent,
       })),
     });

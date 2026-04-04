@@ -1,8 +1,8 @@
-const prisma = require('../config/db');
-const AppError = require('../utils/AppError');
+import prisma from '../config/db.js';
+import AppError from '../utils/AppError.js';
 
 // ─── GET /stops ─────────────────────────────────────────
-exports.listStops = async (req, res, next) => {
+export const listStops = async (req, res, next) => {
   try {
     const { routeId, city } = req.query;
     let where = {};
@@ -11,7 +11,6 @@ exports.listStops = async (req, res, next) => {
     let stops;
 
     if (routeId) {
-      // Find stops belonging to a route via RouteStop join table
       const routeStops = await prisma.routeStop.findMany({
         where: { routeId },
         include: {
@@ -55,7 +54,7 @@ exports.listStops = async (req, res, next) => {
 };
 
 // ─── GET /stops/:stopId ─────────────────────────────────
-exports.getStopDetails = async (req, res, next) => {
+export const getStopDetails = async (req, res, next) => {
   try {
     const stop = await prisma.stop.findUnique({
       where: { id: req.params.stopId },
@@ -83,7 +82,7 @@ exports.getStopDetails = async (req, res, next) => {
 };
 
 // ─── GET /stops/nearest ─────────────────────────────────
-exports.getNearestStops = async (req, res, next) => {
+export const getNearestStops = async (req, res, next) => {
   try {
     const { lat, lng, limit } = req.query;
     if (!lat || !lng) {
@@ -94,7 +93,6 @@ exports.getNearestStops = async (req, res, next) => {
     const userLng = parseFloat(lng);
     const maxResults = parseInt(limit) || 3;
 
-    // Get all stops and compute distances (for small datasets)
     const allStops = await prisma.stop.findMany({
       select: { id: true, name: true, lat: true, lng: true },
     });
@@ -121,7 +119,7 @@ exports.getNearestStops = async (req, res, next) => {
 };
 
 // ─── GET /stops/search ──────────────────────────────────
-exports.searchStops = async (req, res, next) => {
+export const searchStops = async (req, res, next) => {
   try {
     const { q, limit } = req.query;
     if (!q) {

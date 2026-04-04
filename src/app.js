@@ -1,19 +1,20 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const { generalLimiter } = require('./middleware/rateLimiter');
-const errorHandler = require('./middleware/errorHandler');
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import { generalLimiter } from './middleware/rateLimiter.js';
+import errorHandler from './middleware/errorHandler.js';
 
 // ─── Route imports ───────────────────────────────────────
-const authRoutes = require('./routes/auth.routes');
-const userRoutes = require('./routes/user.routes');
-const busRoutes = require('./routes/bus.routes');
-const scheduleRoutes = require('./routes/schedule.routes');
-const stopRoutes = require('./routes/stop.routes');
-const routeRoutes = require('./routes/route.routes');
-const driverRoutes = require('./routes/driver.routes');
-const geocodeRoutes = require('./routes/geocode.routes');
+import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
+import busRoutes from './routes/bus.routes.js';
+import scheduleRoutes from './routes/schedule.routes.js';
+import stopRoutes from './routes/stop.routes.js';
+import routeRoutes from './routes/route.routes.js';
+import driverRoutes from './routes/driver.routes.js';
+import geocodeRoutes from './routes/geocode.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use('/api/v1/stops', stopRoutes);
 app.use('/api/v1/routes', routeRoutes);
 app.use('/api/v1/driver', driverRoutes);
 app.use('/api/v1', geocodeRoutes); // /geocode/* and /navigation/*
+app.use('/api/v1/admin', adminRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────
 app.use((req, res) => {
@@ -57,4 +59,4 @@ app.use((req, res) => {
 // ─── Global Error Handler ────────────────────────────────
 app.use(errorHandler);
 
-module.exports = app;
+export default app;

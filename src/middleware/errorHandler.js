@@ -1,10 +1,10 @@
-const AppError = require('../utils/AppError');
+import AppError from '../utils/AppError.js';
 
 /**
  * Global error handler middleware.
  * Returns standardised { status, code, message, details } JSON.
  */
-function errorHandler(err, req, res, _next) {
+export default function errorHandler(err, req, res, _next) {
   // Default values
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Internal Server Error';
@@ -39,5 +39,3 @@ function errorHandler(err, req, res, _next) {
     details,
   });
 }
-
-module.exports = errorHandler;

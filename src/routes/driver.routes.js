@@ -1,7 +1,7 @@
-const { Router } = require('express');
-const ctrl = require('../controllers/driver.controller');
-const { authenticate, authorize } = require('../middleware/auth');
-const { driverLocationLimiter } = require('../middleware/rateLimiter');
+import { Router } from 'express';
+import * as ctrl from '../controllers/driver.controller.js';
+import { authenticate, authorize } from '../middleware/auth.js';
+import { driverLocationLimiter } from '../middleware/rateLimiter.js';
 
 const router = Router();
 
@@ -16,4 +16,4 @@ router.post('/trips/:tripId/complete', ctrl.completeTrip);
 router.put('/location', driverLocationLimiter, ctrl.updateLocation);
 router.get('/schedule', ctrl.getDriverSchedule);
 
-module.exports = router;
+export default router;

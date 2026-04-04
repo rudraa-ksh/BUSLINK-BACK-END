@@ -1,6 +1,6 @@
-const { Router } = require('express');
-const ctrl = require('../controllers/schedule.controller');
-const { authenticate } = require('../middleware/auth');
+import { Router } from 'express';
+import * as ctrl from '../controllers/schedule.controller.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = Router({ mergeParams: true }); // mergeParams to access :busId
 
@@ -9,4 +9,4 @@ router.use(authenticate);
 router.get('/', ctrl.getSchedule);
 router.get('/next-stop', ctrl.getNextStop);
 
-module.exports = router;
+export default router;

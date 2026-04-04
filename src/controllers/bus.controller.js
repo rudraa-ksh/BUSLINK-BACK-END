@@ -1,8 +1,8 @@
-const prisma = require('../config/db');
-const AppError = require('../utils/AppError');
+import prisma from '../config/db.js';
+import AppError from '../utils/AppError.js';
 
 // ─── GET /buses ─────────────────────────────────────────
-exports.listBuses = async (req, res, next) => {
+export const listBuses = async (req, res, next) => {
   try {
     const { routeId, status } = req.query;
     const where = {};
@@ -37,7 +37,7 @@ exports.listBuses = async (req, res, next) => {
 };
 
 // ─── GET /buses/:busId ──────────────────────────────────
-exports.getBusDetails = async (req, res, next) => {
+export const getBusDetails = async (req, res, next) => {
   try {
     const bus = await prisma.bus.findUnique({
       where: { id: req.params.busId },
@@ -69,7 +69,7 @@ exports.getBusDetails = async (req, res, next) => {
 };
 
 // ─── GET /buses/:busId/location ─────────────────────────
-exports.getBusLocation = async (req, res, next) => {
+export const getBusLocation = async (req, res, next) => {
   try {
     const bus = await prisma.bus.findUnique({
       where: { id: req.params.busId },
@@ -101,7 +101,7 @@ exports.getBusLocation = async (req, res, next) => {
 };
 
 // ─── GET /buses/nearby ──────────────────────────────────
-exports.getNearbyBuses = async (req, res, next) => {
+export const getNearbyBuses = async (req, res, next) => {
   try {
     const { lat, lng, radius } = req.query;
     if (!lat || !lng) {
@@ -159,7 +159,7 @@ exports.getNearbyBuses = async (req, res, next) => {
 };
 
 // ─── GET /buses/search ──────────────────────────────────
-exports.searchBuses = async (req, res, next) => {
+export const searchBuses = async (req, res, next) => {
   try {
     const { originStopId, destStopId, time } = req.query;
     if (!originStopId || !destStopId) {

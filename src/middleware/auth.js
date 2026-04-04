@@ -1,11 +1,11 @@
-const { verifyToken } = require('../utils/token');
-const AppError = require('../utils/AppError');
+import { verifyToken } from '../utils/token.js';
+import AppError from '../utils/AppError.js';
 
 /**
  * Middleware: verify JWT access token from Authorization header.
  * Attaches `req.user` = { userId, email, role }.
  */
-function authenticate(req, res, next) {
+export function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -34,7 +34,7 @@ function authenticate(req, res, next) {
  * Middleware factory: restrict access to specific roles.
  * Usage: authorize('driver'), authorize('admin', 'driver')
  */
-function authorize(...roles) {
+export function authorize(...roles) {
   return (req, res, next) => {
     if (!req.user) {
       return next(new AppError('Authentication required', 401));
@@ -45,5 +45,3 @@ function authorize(...roles) {
     next();
   };
 }
-
-module.exports = { authenticate, authorize };

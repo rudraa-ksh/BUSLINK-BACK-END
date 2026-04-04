@@ -1,15 +1,15 @@
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
-const { OAuth2Client } = require('google-auth-library');
-const prisma = require('../config/db');
-const AppError = require('../utils/AppError');
-const { generateAccessToken, generateRefreshToken, verifyToken } = require('../utils/token');
-const { generateOTP, sendOTPEmail } = require('../utils/otp');
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import { OAuth2Client } from 'google-auth-library';
+import prisma from '../config/db.js';
+import AppError from '../utils/AppError.js';
+import { generateAccessToken, generateRefreshToken, verifyToken } from '../utils/token.js';
+import { generateOTP, sendOTPEmail } from '../utils/otp.js';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // ─── POST /auth/register ────────────────────────────────
-exports.register = async (req, res, next) => {
+export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
@@ -50,7 +50,7 @@ exports.register = async (req, res, next) => {
 };
 
 // ─── POST /auth/verify-otp ──────────────────────────────
-exports.verifyOtp = async (req, res, next) => {
+export const verifyOtp = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
 
@@ -113,7 +113,7 @@ exports.verifyOtp = async (req, res, next) => {
 };
 
 // ─── POST /auth/resend-otp ──────────────────────────────
-exports.resendOtp = async (req, res, next) => {
+export const resendOtp = async (req, res, next) => {
   try {
     const { email } = req.body;
 
@@ -145,7 +145,7 @@ exports.resendOtp = async (req, res, next) => {
 };
 
 // ─── POST /auth/login ───────────────────────────────────
-exports.login = async (req, res, next) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password, role } = req.body;
 
@@ -202,7 +202,7 @@ exports.login = async (req, res, next) => {
 };
 
 // ─── POST /auth/google ──────────────────────────────────
-exports.googleAuth = async (req, res, next) => {
+export const googleAuth = async (req, res, next) => {
   try {
     const { idToken } = req.body;
 
@@ -272,7 +272,7 @@ exports.googleAuth = async (req, res, next) => {
 };
 
 // ─── POST /auth/forgot-password ─────────────────────────
-exports.forgotPassword = async (req, res, next) => {
+export const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
 
@@ -306,7 +306,7 @@ exports.forgotPassword = async (req, res, next) => {
 };
 
 // ─── POST /auth/reset-password ──────────────────────────
-exports.resetPassword = async (req, res, next) => {
+export const resetPassword = async (req, res, next) => {
   try {
     const { email, resetToken, newPassword } = req.body;
 
@@ -341,7 +341,7 @@ exports.resetPassword = async (req, res, next) => {
 };
 
 // ─── POST /auth/refresh-token ───────────────────────────
-exports.refreshTokenHandler = async (req, res, next) => {
+export const refreshTokenHandler = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
 
@@ -392,7 +392,7 @@ exports.refreshTokenHandler = async (req, res, next) => {
 };
 
 // ─── POST /auth/logout ──────────────────────────────────
-exports.logout = async (req, res, next) => {
+export const logout = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
 
