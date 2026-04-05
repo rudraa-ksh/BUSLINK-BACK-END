@@ -40,8 +40,6 @@ router.delete('/stops/:stopId', ctrl.deleteStop);
 
 // ─── Mappings ───────────────────────────────────────────
 router.get('/mappings', ctrl.listMappings);
-router.post('/mappings/bus-route', ctrl.assignBusToRoute);
-router.post('/mappings/bus-driver', ctrl.assignDriverToBus);
 router.post('/mappings/assign-all', ctrl.assignAll);          // bus + driver + route in one call
 router.delete('/mappings/bus-route/:busId', ctrl.unassignBusFromRoute);
 router.delete('/mappings/bus-driver/:busId', ctrl.unassignDriverFromBus);

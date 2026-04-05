@@ -13,7 +13,6 @@ import scheduleRoutes from './routes/schedule.routes.js';
 import stopRoutes from './routes/stop.routes.js';
 import routeRoutes from './routes/route.routes.js';
 import driverRoutes from './routes/driver.routes.js';
-import geocodeRoutes from './routes/geocode.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 
 const app = express();
@@ -43,7 +42,6 @@ app.use('/api/v1/buses/:busId/schedule', scheduleRoutes);
 app.use('/api/v1/stops', stopRoutes);
 app.use('/api/v1/routes', routeRoutes);
 app.use('/api/v1/driver', driverRoutes);
-app.use('/api/v1', geocodeRoutes); // /geocode/* and /navigation/*
 app.use('/api/v1/admin', adminRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────

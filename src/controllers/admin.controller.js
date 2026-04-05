@@ -590,6 +590,93 @@ export const deleteRoute = async (req, res, next) => {
 };
 
 // ═══════════════════════════════════════════════════════════
+//  TRIP AUTO-CREATION HELPER
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Creates a Trip + Schedule entries for a bus on today's date,
+ * using the route's RouteStop arrival times.
+ * Clears any existing trips/schedules for this bus today first.
+ * Returns the created trip or null if no valid stops exist.
+ */
+const createTripForBus = async (busId, routeId) => {
+  // 1. Fetch route stops ordered by sequence
+  const routeStops = await prisma.routeStop.findMany({
+    where: { routeId },
+    orderBy: { sequence: 'asc' },
+    include: { stop: { select: { id: true, name: true } } },
+  });
+
+  // Filter to stops that have an arrivalTime
+  const validStops = routeStops.filter((rs) => rs.arrivalTime);
+  if (validStops.length === 0) return null;
+
+  // 2. Build today's date boundaries
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // 3. Clear existing trips & schedules for this bus today
+  await prisma.schedule.deleteMany({
+    where: { busId, date: { gte: today, lt: tomorrow } },
+  });
+  await prisma.trip.deleteMany({
+    where: { busId, date: { gte: today, lt: tomorrow } },
+  });
+
+  // 4. Calculate trip number (next sequential for this bus today)
+  const existingCount = await prisma.trip.count({
+    where: { busId, date: { gte: today, lt: tomorrow } },
+  });
+
+  // 5. Build departure time from first stop's arrivalTime
+  const firstStop = validStops[0];
+  const lastStop = validStops[validStops.length - 1];
+
+  const parseHHMM = (timeStr) => {
+    const [h, m] = timeStr.split(':').map(Number);
+    const dt = new Date(today);
+    dt.setHours(h, m, 0, 0);
+    return dt;
+  };
+
+  const departureTime = parseHHMM(firstStop.arrivalTime);
+
+  // Fetch route for distance
+  const route = await prisma.route.findUnique({
+    where: { id: routeId },
+    select: { distanceKm: true },
+  });
+
+  // 6. Create the trip
+  const trip = await prisma.trip.create({
+    data: {
+      tripNumber: existingCount + 1,
+      busId,
+      originStop: firstStop.stop.name,
+      destStop: lastStop.stop.name,
+      distanceKm: route?.distanceKm || 0,
+      departureTime,
+      status: 'scheduled',
+      date: today,
+    },
+  });
+
+  // 7. Create schedule entries for each stop
+  const scheduleData = validStops.map((rs) => ({
+    busId,
+    stopId: rs.stop.id,
+    scheduledArrival: parseHHMM(rs.arrivalTime),
+    date: today,
+  }));
+
+  await prisma.schedule.createMany({ data: scheduleData });
+
+  return trip;
+};
+
+// ═══════════════════════════════════════════════════════════
 //  MAPPINGS
 // ═══════════════════════════════════════════════════════════
 
@@ -625,60 +712,6 @@ export const listMappings = async (req, res, next) => {
   }
 };
 
-// ─── POST /admin/mappings/bus-route ─────────────────────
-export const assignBusToRoute = async (req, res, next) => {
-  try {
-    const { busId, routeId } = req.body;
-
-    const bus = await prisma.bus.findUnique({ where: { id: busId } });
-    if (!bus) throw new AppError('Bus not found', 404);
-
-    const route = await prisma.route.findUnique({ where: { id: routeId } });
-    if (!route) throw new AppError('Route not found', 404);
-
-    await prisma.bus.update({
-      where: { id: busId },
-      data: { routeId },
-    });
-
-    res.json({ message: `Bus ${bus.plateNumber} assigned to ${route.name}.` });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// ─── POST /admin/mappings/bus-driver ────────────────────
-export const assignDriverToBus = async (req, res, next) => {
-  try {
-    const { busId, driverId } = req.body;
-
-    const bus = await prisma.bus.findUnique({ where: { id: busId } });
-    if (!bus) throw new AppError('Bus not found', 404);
-
-    const driver = await prisma.user.findUnique({ where: { id: driverId } });
-    if (!driver || driver.role !== 'driver') {
-      throw new AppError('Driver not found', 404);
-    }
-
-    // Check if driver is already assigned to another bus
-    const existingAssignment = await prisma.bus.findUnique({ where: { driverId } });
-    if (existingAssignment && existingAssignment.id !== busId) {
-      throw new AppError(
-        `Driver is already assigned to bus ${existingAssignment.plateNumber}. Unassign first.`,
-        409
-      );
-    }
-
-    await prisma.bus.update({
-      where: { id: busId },
-      data: { driverId },
-    });
-
-    res.json({ message: `Driver ${driver.name} assigned to bus ${bus.plateNumber}.` });
-  } catch (err) {
-    next(err);
-  }
-};
 
 // ─── POST /admin/mappings/assign-all ────────────────────
 export const assignAll = async (req, res, next) => {
@@ -723,6 +756,12 @@ export const assignAll = async (req, res, next) => {
       },
     });
 
+    // Auto-create trip if both route and driver are now assigned
+    let trip = null;
+    if (updated.routeId && updated.driverId) {
+      trip = await createTripForBus(updated.id, updated.routeId);
+    }
+
     res.json({
       message: 'Assignment successful.',
       busId: updated.id,
@@ -730,6 +769,9 @@ export const assignAll = async (req, res, next) => {
       route: updated.route ? { routeId: updated.route.id, name: updated.route.name } : null,
       driver: updated.driver
         ? { driverId: updated.driver.id, name: updated.driver.name, email: updated.driver.email }
+        : null,
+      trip: trip
+        ? { tripId: trip.id, tripNumber: trip.tripNumber, origin: trip.originStop, dest: trip.destStop, departureTime: trip.departureTime }
         : null,
     });
   } catch (err) {
